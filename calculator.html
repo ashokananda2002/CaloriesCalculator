@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Calorie Intake Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    .container {
+      max-width: 400px;
+      margin: 0 auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    input[type="number"],
+    select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+
+    .error-message {
+      color: red;
+      margin-top: 5px;
+    }
+
+    button {
+      background-color: #4caf50;
+      color: #fff;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    .calculator-form {
+      display: none;
+    }
+
+    .welcome-message {
+      margin-top: 15px;
+      font-size: 18px;
+    }
+
+    #result {
+      margin-top: 15px;
+    }
+  </style>
+
+</head>
+<body>
+  <h1><img src="img/B1A0D4AD88A15707C3BD669FE39_2C752C75_2F23E-removebg-preview.png" style="height: 5%; width: 5%;"> Calorie Intake Calculator</h1>
+
+  <!-- Login Form -->
+  <div class="container" id="loginForm">
+    <h2>Login</h2>
+    <form>
+      <div class="form-group">
+        <label for="username">Username:</label>
+        <input type="text" id="username" required>
+      </div>
+      <div class="form-group">
+        <label for="password">Password:</label>
+        <input type="password" id="password" required>
+      </div>
+      <button type="submit">Login</button>
+      <p id="loginError" class="error-message" style="display: none;">Invalid username or password. Please try again.</p>
+    </form>
+  </div>
+
+  <!-- Calculator Form -->
+  <div class="container calculator-form" id="calculatorForm">
+    <h2>Welcome, <span id="loggedInUsername"></span>!</h2>
+    <form>
+      <div class="form-group">
+        <label for="weight">Weight (in kg):</label>
+        <input type="number" id="weight" name="weight" required>
+      </div>
+      <div class="form-group">
+        <label for="height">Height (in cm):</label>
+        <input type="number" id="height" name="height" required>
+      </div>
+      <div class="form-group">
+        <label for="age">Age (in years):</label>
+        <input type="number" id="age" name="age" required>
+      </div>
+      <div class="form-group">
+        <label for="gender">Gender:</label>
+        <select id="gender" name="gender" required>
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="activityLevel">Activity Level:</label>
+        <select id="activityLevel" name="activityLevel" required>
+          <option value="1.2">Sedentary (little to no exercise)</option>
+          <option value="1.375">Lightly active (light exercise/sports 1-3 days per week)</option>
+          <option value="1.55">Moderately active (moderate exercise/sports 3-5 days per week)</option>
+          <option value="1.725">Very active (hard exercise/sports 6-7 days per week)</option>
+          <option value="1.9">Extra active (very hard exercise/sports & physical job or 2x training)</option>
+        </select>
+      </div>
+      <button type="submit">Calculate</button>
+      <div id="result"></div>
+    </form>
+    <button id="logoutButton">Logout</button>
+  </div>
+
+  <script>
+    const loginForm = document.getElementById("loginForm");
+    const calculatorForm = document.getElementById("calculatorForm");
+
+    const usernameInput = document.getElementById("username");
+    const passwordInput = document.getElementById("password");
+
+    const loggedInUsernameElement = document.getElementById("loggedInUsername");
+
+    const loginErrorElement = document.getElementById("loginError");
+
+    const calculatorFormElement = document.querySelector("#calculatorForm form");
+    const resultElement = document.getElementById("result");
+
+    const logoutButton = document.getElementById("logoutButton");
+
+    const loggedInUsername = localStorage.getItem("username");
+    if (loggedInUsername) {
+      loggedInUsernameElement.textContent = loggedInUsername;
+      loginForm.style.display = "none";
+      calculatorForm.style.display = "block";
+    }
+
+    loginForm.querySelector("form").addEventListener("submit", function(event) {
+      event.preventDefault();
+      const enteredUsername = usernameInput.value;
+      const enteredPassword = passwordInput.value;
+
+      if (enteredUsername === "admin" && enteredPassword === "password") {
+        localStorage.setItem("username", enteredUsername);
+
+        loggedInUsernameElement.textContent = enteredUsername;
+        loginForm.style.display = "none";
+        calculatorForm.style.display = "block";
+      } else {
+        loginErrorElement.style.display = "block";
+      }
+    });
+
+    calculatorFormElement.addEventListener("submit", function(event) {
+      event.preventDefault(); 
+      const weight = parseFloat(document.getElementById("weight").value);
+      const height = parseFloat(document.getElementById("height").value);
+      const age = parseInt(document.getElementById("age").value);
+      const gender = document.getElementById("gender").value;
+      const activityLevel = parseFloat(document.getElementById("activityLevel").value);
+
+      let bmr;
+      if (gender === "male") {
+        bmr = 88.362 + (13.397 * weight) + (4.799 * height) - (5.677 * age);
+      } else {
+        bmr = 447.593 + (9.247 * weight) + (3.098 * height) - (4.330 * age);
+      }
+
+      const tdee = bmr * activityLevel;
+
+      resultElement.textContent = `Your recommended daily calorie intake to maintain your weight is approximately ${tdee.toFixed(2)} calories.`;
+    });
+
+    logoutButton.addEventListener("click", function() {
+      localStorage.removeItem("username");
+
+      usernameInput.value = "";
+      passwordInput.value = "";
+      loginErrorElement.style.display = "none";
+
+      loginForm.style.display = "block";
+      calculatorForm.style.display = "none";
+    });
+  </script>
+</body>
+</html>
